@@ -1009,33 +1009,54 @@ module.exports = class ComputeController extends KDController
 
     remote.api.JStackTemplate.one { _id }, (err, stackTemplate) =>
 
+      return kd.NotificationView { title: 'Error occurred' }  if err
+
+      reactor.dispatch 'REMOVE_STACK_TEMPLATE_SUCCESS', { id: _id }
+
       if accessLevel is 'group'
-        reactor.dispatch 'REMOVE_STACK_TEMPLATE_SUCCESS', { id: _id }
-        reactor.dispatch 'UPDATE_TEAM_STACK_TEMPLATE_SUCCESS', { stackTemplate }
         new kd.NotificationView { title : 'Stack Template is Shared With Team' }
-        @checkRevisonFromOriginalStackTemplate stackTemplate._id, yes
+        @checkRevisonFromOriginalStackTemplate stackTemplate
       else
-        reactor.dispatch 'REMOVE_STACK_TEMPLATE_SUCCESS', { id: _id }
-        @checkRevisonFromOriginalStackTemplate _id, no
+        @removeRevisonFromUnSharedStackTemplate _id
         new kd.NotificationView { title : 'Stack Template is Unshared With Team' }
 
 
-  checkRevisonFromOriginalStackTemplate: (stackTemplateId, group) ->
+  removeRevisonFromUnSharedStackTemplate: (id) ->
+
+    { reactor } = kd.singletons
+    stacks = @stacks.filter (stack) -> stack.config?.clonedFrom is id
+
+    stacks.forEach (stack) =>
+      config = stack.config ?= {}
+      config.needUpdate = no
+      @updateStackConfig stack, config
+
+
+  checkRevisonFromOriginalStackTemplate: (stackTemplate) ->
 
     { reactor } = kd.singletons
 
-    stacks = @stacks.filter (stack) -> stack.config?.clonedFrom is stackTemplateId
+    reactor.dispatch 'UPDATE_TEAM_STACK_TEMPLATE_SUCCESS', { stackTemplate }
+
+    stacks = @stacks.filter (stack) ->
+      stack.config?.clonedFrom is stackTemplate._id
 
     return  unless stacks.length
-    stacks.forEach (stack) ->
-      config  = stack.config ?= {}
-      config.needUpdate = group
-      unless group
-        delete config.needUpdate
-        delete config.clonedFrom
-      stack.modify { config }, (err) ->
-        stack.config = config
-        reactor.dispatch 'STACK_UPDATED', stack
+    stacks.forEach (stack) =>
+      @fetchBaseStackTemplate stack, (err, template) =>
+        unless err
+          if stackTemplate.template.sum isnt template.template.sum
+            config = stack.config ?= {}
+            config.needUpdate = yes
+            @updateStackConfig stack, config
+
+
+  updateStackConfig: (stack, config) ->
+    { reactor } = kd.singletons
+    stack.modify { config }, (err) ->
+      stack.config = config
+      reactor.dispatch 'STACK_UPDATED', stack
+
 
 
   checkGroupStacks: ->
