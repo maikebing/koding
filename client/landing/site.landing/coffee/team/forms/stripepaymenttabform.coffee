@@ -70,6 +70,13 @@ module.exports = class StripePaymentTabForm extends LoginViewInlineForm
           messages   :
             required : 'Expiration Year is invalid'
 
+    @whyTip = new kd.CustomHTMLView
+      cssClass : 'TeamsModal-ccwarning'
+      partial : '''<strong>We ask your credit card purely for verification purposes.</strong>
+                   Your credit card will not be charged unless you buy a
+                   plan after your trial period ends.
+                   Read more on our <a href="www.koding.com/pricing" target="_blank">Pricing</a> page.'''
+
     @button = new kd.ButtonView
       title: 'NEXT'
       style: 'TeamsModal-button'
@@ -111,6 +118,7 @@ module.exports = class StripePaymentTabForm extends LoginViewInlineForm
       {{> @exp_month}}
       {{> @exp_year}}
     </div>
+    {{> @whyTip }}
     {{> @button}}
     {{> @backLink}}
     """
