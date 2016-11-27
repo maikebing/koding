@@ -140,6 +140,9 @@ build:
         code: |
           [ "$CONFIG" != "prod" ] && scripts/delete-deployment-credentials.sh
     - script:
+        name: sleep
+        code: scripts/wercker/run-command scripts/wercker/wait 1m 24
+    - script:
         name: check connectivity
         code: scripts/wercker/run-command scripts/wercker/check-connectivity INSTANCE_DATA
     - script:

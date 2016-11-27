@@ -1,0 +1,9 @@
+#!/bin/bash
+
+INTERVAL=$1
+TRY_COUNT=$2
+
+for i in $(seq $TRY_COUNT); do
+  echo "sleeping for next interval"
+  sleep $INTERVAL
+done
