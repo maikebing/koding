@@ -34,12 +34,7 @@ module.exports = class StripePaymentTab extends kd.TabPaneView
 
       { number, cvc, exp_month, exp_year } = formData
 
-      Stripe.card.createToken {
-        number    : number
-        cvc       : cvc
-        exp_month : exp_month
-        exp_year  : exp_year
-      }, (status, response) =>
+      Stripe.card.createToken { number, cvc, exp_month, exp_year }, (status, response) =>
 
         if response.error
         then @onSubmitError response.error
