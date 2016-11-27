@@ -89,7 +89,7 @@ truncate --size 0 $INSTANCE_DATA_FILE
 
 for INSTANCE in $INSTANCES; do
   (
-    repeat 1m 20 health_check $INSTANCE || fail_instance $INSTANCE
+    repeat 1m 5 health_check $INSTANCE || fail_instance $INSTANCE
     echo $INSTANCE >> $INSTANCE_DATA_FILE
   ) &
 done
