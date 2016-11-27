@@ -19,26 +19,17 @@ cd $REPOSITORY_PATH
 git config user.email 'sysops@koding.com'
 git config user.name 'Koding Bot'
 
-export KONFIG_SNEAKERS3_AWSSECRETACCESSKEY="" \
-       KONFIG_SNEAKERS3_AWSACCESSKEYID="" \
-       KONFIG_SNEAKERS3_SNEAKERS3PATH="" \
-       KONFIG_SNEAKERS3_SNEAKERMASTERKEY="" \
-       KONFIG_SNEAKERS3_AWSREGION="" \
-       KONFIG_KLOUD_CREDENTIALENDPOINT=""
+pip install docker-compose
 
-npm install --unsafe-perm
-./configure --config dev --host $HOSTNAME --hostname $HOSTNAME --publicPort 80 --disable-segment
-go/build.sh
-make -C client dist
+docker-compose -f docker-compose-init.yml run init configure \
+               --config dev --host $HOSTNAME \
+               --hostname $HOSTNAME --publicPort 80 \
+               --disable-segment
 
-TEST_EXTRAS="--no-start-selenium --url http://$HOST" \
+TEST_EXTRAS="--no-start-selenium --url http://$HOSTNAME" \
   make -C client/test build
 
-./run buildservices force
-
-sleep 60 # let dockers boot up
-
-./run exec supervisord -c $REPOSITORY_PATH/supervisord.conf
+docker-compose -f docker-compose-test.yml up -d
 
 export TEST_VENDOR=$REPOSITORY_PATH/client/test/vendor
 
