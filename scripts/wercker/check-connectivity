@@ -64,7 +64,7 @@ function check_connectivity () {
 function health_check () {
   INSTANCE=$1
   HOST=$(echo $INSTANCE | awk '{print $2}')
-  OUTPUT=$(curl --silent --dump-header /dev/stdout "http://$HOST:8090/-/healthCheck")
+  OUTPUT=$(curl --silent --dump-header /dev/stdout "http://$HOST/-/healthCheck")
   STATUS_LINE=$(echo "$OUTPUT" | head -n1)
   STATUS_LINE=$(echo "$STATUS_LINE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
