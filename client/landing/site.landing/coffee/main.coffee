@@ -41,6 +41,7 @@ do ->
   kd.config.recaptcha     = window._runtimeOptions.recaptcha
   kd.config.google        = window._runtimeOptions.google
   kd.config.domains       = window._runtimeOptions.domains
+  kd.config.domains.main  = 'dev.koding.com:8090'
   kd.config.groupName     = groupName = utils.getGroupNameFromLocation()
 
   if groupName is 'koding'
